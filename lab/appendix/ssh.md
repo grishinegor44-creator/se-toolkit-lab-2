@@ -1,15 +1,21 @@
 # `SSH`
 
+<h2>Table of contents</h2>
+
 - [`SSH` and shells](#ssh-and-shells)
 - [SSH daemon](#ssh-daemon)
 - [`ssh-agent`](#ssh-agent)
-- [Create a new `SSH` key](#create-a-new-ssh-key)
-- [Find the `SSH` key files](#find-the-ssh-key-files)
-- [Add the host to the `SSH` config](#add-the-host-to-the-ssh-config)
-- [Start the `ssh-agent`](#start-the-ssh-agent)
-- [Verify the `SSH` setup](#verify-the-ssh-setup)
+- [Set up SSH](#set-up-ssh)
+  - [Create a new `SSH` key](#create-a-new-ssh-key)
+  - [Find the `SSH` key files](#find-the-ssh-key-files)
+  - [Start the `ssh-agent`](#start-the-ssh-agent)
+  - [Verify the `SSH` setup](#verify-the-ssh-setup)
+- [Add the host to `SSH`](#add-the-host-to-ssh)
 - [Connect to the VM](#connect-to-the-vm)
 - [Common errors](#common-errors)
+  - [`Permission denied (publickey)`](#permission-denied-publickey)
+  - [`Bad owner or permissions`](#bad-owner-or-permissions)
+  - [`Connection timed out`](#connection-timed-out)
 
 ## `SSH` and shells
 
@@ -26,11 +32,24 @@ All commands below assume a Unix shell: `Bash` (`Linux`, `WSL`) or `Zsh` (`macOS
 
 ## `ssh-agent`
 
-## Create a new `SSH` key
+## Set up SSH
+
+Steps:
+
+<!-- no toc -->
+1. [Check your current shell](./vs-code.md#check-the-current-shell-in-the-vs-code-terminal).
+2. [Create a new `SSH` key](#create-a-new-ssh-key)
+3. [Find the `SSH` key files](#find-the-ssh-key-files)
+4. [Start the `ssh-agent`](#start-the-ssh-agent)
+5. [Verify the `SSH` setup](#verify-the-ssh-setup)
+
+### Create a new `SSH` key
 
 Generate a key pair: a **private key** (secret) and a **public key** (safe to share).
 
 We'll use the `ed25519` algorithm, which is the modern standard for security and performance.
+
+Steps:
 
 1. [Run using the `VS Code Terminal`](./vs-code.md#run-a-command-using-the-vs-code-terminal):
 
@@ -46,7 +65,7 @@ We'll use the `ed25519` algorithm, which is the modern standard for security and
   
    *Note:* If you set a passphrase, use `ssh-agent` to avoid retyping it on every connection.
 
-## Find the `SSH` key files
+### Find the `SSH` key files
 
 `SSH` keys are generated in pairs. You must know which file is which.
 
@@ -84,49 +103,65 @@ Because you used a custom name, your keys are named `se_toolkit_key` (private) a
 > Never share the private key.
 > This is your secret identity.
 
-## Add the host to the `SSH` config
+### Start the `ssh-agent`
 
-1. [Open using the `Command Palette` the file](./vs-code.md#open-a-file-using-the-command-palette):
-   `~/.ssh/config`
+1. [Run using the `VS Code Terminal`](./vs-code.md#run-a-command-using-the-vs-code-terminal):
 
-2. Add this text at the end of the file.
-
-   ```text
-
-   Host se-toolkit-vm
-      HostName <your-vm-ip-address>
-      User root
-      IdentityFile ~/.ssh/se_toolkit_key
-      AddKeysToAgent yes
-      UseKeychain yes
+   ```terminal
+   eval "$(ssh-agent -s)"
+   ssh-add ~/.ssh/se_toolkit_key
    ```
 
-3. Replace `<your-vm-ip-address>` with the [IP address of your VM](./vm.md#get-the-ip-address-of-the-vm).
+### Verify the `SSH` setup
 
-## Start the `ssh-agent`
-
-[Run using the `VS Code Terminal`](./vs-code.md#run-a-command-using-the-vs-code-terminal):
-
-```terminal
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/se_toolkit_key
-```
-
-## Verify the `SSH` setup
-
-1. Check that your key is loaded:
+1. [Open a new `VS Code Terminal`](./vs-code.md#open-a-new-vs-code-terminal).
+2. [Check the current shell in the `VS Code Terminal`](./vs-code.md#).
+3. [Run using the `VS Code Terminal`](../appendix/vs-code.md#run-a-command-using-the-vs-code-terminal):
 
    ```terminal
    ssh-add -l
    ```
 
-2. You should see your key fingerprint in the output.
+4. You should see your key fingerprint in the output.
 
-3. If you see `The agent has no identities`, run the [start `ssh-agent` step](#start-the-ssh-agent) again.
+5. If you see `The agent has no identities`, run the [start `ssh-agent` step](#start-the-ssh-agent) again.
+
+## Add the host to `SSH`
+
+1. Make sure you have [set up `SSH`](#set-up-ssh).
+1. [Open the file](./vs-code.md#open-the-file):
+   `~/.ssh/config`
+
+1. Add this text at the end of the file.
+
+   - `Linux`, `Windows`:
+
+     ```text
+  
+     Host se-toolkit-vm
+        HostName <your-vm-ip-address>
+        User root
+        IdentityFile ~/.ssh/se_toolkit_key
+        AddKeysToAgent yes
+     ```
+
+   - `macOS`:
+
+     ```text
+  
+     Host se-toolkit-vm
+        HostName <your-vm-ip-address>
+        User root
+        IdentityFile ~/.ssh/se_toolkit_key
+        AddKeysToAgent yes
+        UseKeychain yes
+     ```
+
+1. Replace `<your-vm-ip-address>` with the [IP address of your VM](./vm.md#get-the-ip-address-of-the-vm).
 
 ## Connect to the VM
 
-You can connect using the alias that you [added to your `SSH` config](#add-the-host-to-the-ssh-config).
+You can connect using the alias that you [added to your `SSH` config](#add-the-host-to-ssh).
 
 1. [Run using the `VS Code Terminal`](./vs-code.md#run-a-command-using-the-vs-code-terminal):
 
@@ -143,13 +178,13 @@ You can connect using the alias that you [added to your `SSH` config](#add-the-h
 
 ## Common errors
 
-`Permission denied (publickey)`:
+### `Permission denied (publickey)`
 
 1. Check `IdentityFile` in `~/.ssh/config`.
 2. Ensure the public key was added to the remote host.
 3. Ensure your key is loaded: `ssh-add -l`.
 
-`Bad owner or permissions`:
+### `Bad owner or permissions`
 
 1. [Run using the `VS Code Terminal`](./vs-code.md#run-a-command-using-the-vs-code-terminal):
 
@@ -159,12 +194,34 @@ You can connect using the alias that you [added to your `SSH` config](#add-the-h
    chmod 644 ~/.ssh/se_toolkit_key.pub
    ```
 
-`Connection timed out`:
+### `Connection timed out`
 
 1. Verify host IP and network connectivity.
 2. Verify the VM is running.
-3. Use verbose logs to debug:
+3. Try to ping the VM:
+
+   Run using the `VS Code Terminal`:
+
+   ```terminal
+   ping <your-vm-ip-address>
+   ```
+
+   You should see logs like these:
+
+   ```terminal
+   PING 10.93.24.112 (10.93.24.112) 56(84) bytes of data.
+
+   64 bytes from 10.93.24.112: icmp_seq=1 ttl=61 time=2.15 ms
+   64 bytes from 10.93.24.112: icmp_seq=2 ttl=61 time=0.996 ms
+   64 bytes from 10.93.24.112: icmp_seq=3 ttl=61 time=1.08 ms
+   
+   ...
+   ```
+
+4. Use verbose logs to debug:
 
    ```terminal
    ssh -v se-toolkit-vm
    ```
+
+5. Try to stop, delete, and create a new VM if there are still problems.

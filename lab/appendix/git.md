@@ -1,5 +1,7 @@
 # `Git`
 
+<h2>Table of contents</h2>
+
 - [What is `Git`](#what-is-git)
 - [How `Git` works - text](#how-git-works---text)
 - [How `Git` works - videos](#how-git-works---videos)
@@ -37,6 +39,8 @@ git add <file>
 git commit -m "docs: update appendix"
 git log --oneline --decorate --graph -n 15
 ```
+
+See [`<file-path>`](./shell.md#file-path).
 
 When confused, start with `git status` and read it carefully before running the next command.
 

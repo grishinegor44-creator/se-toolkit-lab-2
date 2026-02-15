@@ -1,6 +1,13 @@
 # `Linux`
 
+<h2>Table of contents</h2>
+
 - [What is `Linux`](#what-is-linux)
+- [Linux distro](#linux-distro)
+  - [`Ubuntu`](#ubuntu)
+  - [`ArchLinux`](#archlinux)
+  - [`NixOS`](#nixos)
+  - [`CachyOS`](#cachyos)
 - [Shell](#shell)
   - [Login shell](#login-shell)
   - [Check what shell is running](#check-what-shell-is-running)
@@ -37,6 +44,16 @@
 ## What is `Linux`
 
 `Linux` is a family of [operating systems](./operating-system.md) commonly used for servers and [virtual machines](./vm.md).
+
+## Linux distro
+
+### `Ubuntu`
+
+### `ArchLinux`
+
+### `NixOS`
+
+### `CachyOS`
 
 ## Shell
 
@@ -104,7 +121,7 @@ These commands run programs:
 - `pwd` - show current directory.
 - `ls` - list files.
 - `cd <dir>` - go to a directory.
-- `cat <file>` - print file content.
+- `cat <file-path>` - print the content of a file at the [`<file-path>`](./shell.md#file-path).
 
 ## Process
 
